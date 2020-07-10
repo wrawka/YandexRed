@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+YellowTest/yellowtest.code-workspace
+
+# Custom
+YellowTest/build/
