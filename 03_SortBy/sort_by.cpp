@@ -5,7 +5,10 @@
 #include <numeric>
 using namespace std;
 
-#define SORT_BY(field)  // Реализуйте этот макрос, а также необходимые операторы для классов Date и Time
+#define SORT_BY(field)  \
+    [](const AirlineTicket& lhs, const AirlineTicket& rhs) { \
+    return lhs.field < rhs.field; \
+  }
 
 void TestSortBy() {
   vector<AirlineTicket> tixs = {
