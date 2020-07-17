@@ -5,9 +5,9 @@
 #include <numeric>
 using namespace std;
 
-#define SORT_BY(field)  \
-    [](const AirlineTicket& lhs, const AirlineTicket& rhs) { \
-    return lhs.field < rhs.field; \
+#define SORT_BY(field)                                        \
+    [](const AirlineTicket& lhs, const AirlineTicket& rhs) {  \
+    return lhs.field < rhs.field;                             \
   }
 
 void TestSortBy() {
