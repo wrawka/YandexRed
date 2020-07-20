@@ -1,9 +1,61 @@
 #include "airline_ticket.h"
 #include "test_runner.h"
+#include <vector>
+#include <iostream>
+#include <sstream>
+#include <map>
+// #include "D:\\MD\\Lebedev\\projects\\YandexRed\\TestRunner\\test_runner.h"
 
 using namespace std;
 
-#define UPDATE_FIELD(ticket, field, values)  // Реализуйте этот макрос, а также необходимые операторы для классов Date и Time
+// Date
+bool operator<(const Date& lhs, const Date& rhs) {
+  return vector<int>{lhs.year, lhs.month, lhs.day} < vector<int>{rhs.year, rhs.month, rhs.day};
+}
+
+bool operator==(const Date& lhs, const Date& rhs) {
+  return (lhs.year == rhs.year && lhs.month == rhs.month && lhs.day == rhs.day);
+}
+
+ostream& operator<<(ostream& os, const Date& date) {
+  os << date.year << "-" << date.month << "-" << date.day;
+  return os;
+}
+
+istream& operator>>(istream& is, Date& date) {
+  char drop;
+  return is >> date.year >> drop >> date.month >> drop >> date.day;
+}
+// /Date
+
+// Time
+bool operator<(const Time& lhs, const Time& rhs) {
+  return vector<int>{lhs.hours, lhs.minutes} < vector<int>{rhs.hours, rhs.minutes};
+}
+
+bool operator==(const Time& lhs, const Time& rhs) {
+  return lhs.hours == rhs.hours && lhs.minutes == rhs.minutes;
+}
+
+ostream& operator<<(ostream& os, const Time& time) {
+  os << time.hours << ":" << time.minutes;
+  return os;
+}
+
+istream& operator>>(istream& is, Time& time) {
+  char drop;
+  return is >> time.hours >> drop >> time.minutes;
+}
+// /Time
+
+#define UPDATE_FIELD(ticket, field, values) {     \
+        map<string, string>::const_iterator it;   \
+        it = values.find(#field);                 \
+        if (it != values.end()) {                 \
+          istringstream is(it -> second);         \
+          is >> ticket.field;                     \
+        }}
+
 
 void TestUpdate() {
   AirlineTicket t;
