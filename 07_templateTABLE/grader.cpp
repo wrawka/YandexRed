@@ -1,5 +1,14 @@
-#include "D:\\MD\\Lebedev\\projects\\YandexRed\\TestRunner\\test_runner.h"
 
+#include "test_runner.h"
+
+#include <utility>
+#include <sstream>
+#include <stdexcept>
+#include <iostream>
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
 using namespace std;
 
 // Реализуйте здесь шаблонный класс Table
