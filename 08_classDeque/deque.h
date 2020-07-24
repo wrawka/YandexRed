@@ -21,17 +21,20 @@ public:
         backward.clear();
         size = 0;
     }
+
     // константный метод Empty, возвращающий true, если дек не содержит ни одного элемента;
     bool Empty() const {
         return size == 0;
     }
+
     // константный метод Size, возвращающий количество элементов в деке;
     size_t Size() const {
         return size;
     }
+
     T& operator[](size_t index) {
-        if (index == 0) return backward.back();
-        int n = backward.size();
+        if (index == 0) return this->Front();
+        auto n = backward.size();
         if (index < n) {
             auto it = backward.rbegin();
             advance(it, index);
@@ -42,9 +45,10 @@ public:
             return *it;
         }
     }
+
     const T& operator[](size_t index) const {
-        if (index == 0) return backward.back();
-        int n = backward.size();
+        if (index == 0) return this->Front();
+        auto n = backward.size();
         if (index < n) {
             auto it = backward.rbegin();
             advance(it, index);
@@ -55,6 +59,7 @@ public:
             return *it;
         }
     }
+
     // метод At(size_t index), генерирующий стандартное исключение out_of_range, если индекс больше или равен количеству элементов в деке;
     T& At(size_t index) {
         if (0 > index || index > size) throw out_of_range("Index out of bounds");

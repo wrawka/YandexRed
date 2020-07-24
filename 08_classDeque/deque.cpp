@@ -28,6 +28,8 @@ void TestDeque() {
     ASSERT_EQUAL(d.At(3), 100u);
     d[2] = -2;
     ASSERT_EQUAL(d.At(2), -2);
+    d.Back() = 400; //{-10, -1, 0, 100, 101, 400}
+    ASSERT_EQUAL(d.At(5), 400);
     try
     {
         cout << d.At(13);
