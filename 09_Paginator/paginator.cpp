@@ -1,4 +1,5 @@
-#include "D:\\MD\\Lebedev\\projects\\YandexRed\\TestRunner\\test_runner.h"
+// #include "D:\\MD\\Lebedev\\projects\\YandexRed\\TestRunner\\test_runner.h"
+#include "test_runner.h"
 
 #include <numeric>
 #include <iostream>
@@ -7,34 +8,51 @@
 #include <iterator>
 using namespace std;
 
-// Реализуйте шаблон класса Paginator
-
-// #define IT_VALUE(it) iterator_traits<it>::value_type
+template <typename Iterator>
+class IteratorRange {
+private :
+  Iterator first , last ;
+public :
+  IteratorRange(Iterator f, Iterator l)
+                : first(f)
+                , last(l) {}
+  Iterator begin() const  { return first; }
+  Iterator end() const    { return last; }
+  size_t size() const { return size_t(last - first); }
+};
 
 template <typename Iterator>
 class Paginator {
 private:
-  using item_type = typename iterator_traits<Iterator>::value_type;
-  vector< vector<item_type> > pages;
+  // using item_type = typename iterator_traits<Iterator>::value_type;
+  vector< IteratorRange<Iterator> > pages;
 
 public:
-  Paginator(Iterator begin, Iterator end, size_t page_size) {
+  // Paginator(Iterator begin, Iterator end, size_t page_size) {
+  //   for (Iterator it = begin; it != end; ) {
+  //     Iterator nend = next(it, min(page_size, size_t(end - it)));
+  //     vector<item_type> v = {it, nend};
+  //     pages.push_back(v);
+  //     it = nend;
+  //   }
+  // };
+  Paginator (Iterator begin, Iterator end, size_t page_size) {
     for (Iterator it = begin; it != end; ) {
       Iterator nend = next(it, min(page_size, size_t(end - it)));
-      vector<item_type> v = {it, nend};
-      pages.push_back(v);
+      IteratorRange ir(it, nend);
+      pages.push_back(ir);
       it = nend;
     }
-  };
-  auto begin()    { return pages.begin(); }
-  auto end()      { return pages.end(); }
+  }
+  auto begin()        { return pages.begin(); }
+  auto end()          { return pages.end(); }
   size_t size() const { return pages.size(); }
 
 };
 
 template <typename C>
 auto Paginate(C& c, size_t page_size) {
-  return Paginator{c.begin(), c.end(), page_size};
+  return Paginator(c.begin(), c.end(), page_size);
 }
 
 void TestPageCounts() {
@@ -61,7 +79,6 @@ void TestLooping() {
     }
     os << '\n';
   }
-
   ASSERT_EQUAL(os.str(), "1 2 3 4 5 6 \n7 8 9 10 11 12 \n13 14 15 \n");
 }
 
