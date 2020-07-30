@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "test_runner.h"
+
 using namespace std;
 
 class RouteManager {
@@ -15,7 +17,7 @@ public:
   }
   int FindNearestFinish(int start, int finish) const {
     int result = abs(start - finish);
-    if (reachable_lists_.count(start) < 1) { // не нашли точку отправления? стоим на месте
+    if (reachable_lists_.find(start) == reachable_lists_.end()) { // не нашли точку отправления? стоим на месте
         return result;
     }
     // нашли точку отравления - ищем точку назначения
@@ -35,6 +37,30 @@ private:
   map<int, vector<int>> reachable_lists_;
 };
 
+void TestRoutes1() {
+  // Test #1
+  RouteManager test;
+  test.AddRoute(-2, 5);
+  test.AddRoute(10, 4);
+  test.AddRoute(5, 8);
+  ASSERT_EQUAL(test.FindNearestFinish(4, 10), 0);
+  ASSERT_EQUAL(test.FindNearestFinish(4, -2), 6);
+  ASSERT_EQUAL(test.FindNearestFinish(5, 0), 2);
+  ASSERT_EQUAL(test.FindNearestFinish(5, 100), 92);
+}
+
+void TestRoutes() {
+  // Custom
+  RouteManager test;
+  test.AddRoute(-2, 5);
+  test.AddRoute(10, 4);
+  test.AddRoute(5, 8);
+  test.AddRoute(5, 10);
+  ASSERT_EQUAL(test.FindNearestFinish(10, 8), 2);
+  ASSERT_EQUAL(test.FindNearestFinish(10, 3), 1);
+  ASSERT_EQUAL(test.FindNearestFinish(5, 9), 1);
+  ASSERT_EQUAL(test.FindNearestFinish(5, -5), 3);
+}
 
 int main0() {
   RouteManager routes;
@@ -54,5 +80,12 @@ int main0() {
     }
   }
 
+  return 0;
+}
+
+int main() {
+  TestRunner tr;
+  RUN_TEST(tr, TestRoutes1);
+  RUN_TEST(tr, TestRoutes);
   return 0;
 }
