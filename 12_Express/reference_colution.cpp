@@ -9,17 +9,17 @@ using namespace std;
 
 class RouteManager {
 public:
-  void AddRoute(int start, int finish) {
+  void AddRoute(int start, int finish) {    // O(log(size))
     reachable_lists_[start].insert(finish);
     reachable_lists_[finish].insert(start);
   }
   int FindNearestFinish(int start, int finish) const {
     int result = abs(start - finish);
-    if (reachable_lists_.count(start) < 1) {
+    if (reachable_lists_.count(start) < 1) { // O(log(size))
       return result;
     }
     const set<int>& reachable_stations = reachable_lists_.at(start);
-    const auto finish_pos = reachable_stations.lower_bound(finish);
+    const auto finish_pos = reachable_stations.lower_bound(finish); // O(log(size))
     if (finish_pos != end(reachable_stations)) {
       result = min(result, abs(finish - *finish_pos));
     }

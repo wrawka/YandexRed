@@ -14,7 +14,7 @@ public:
   }
   int FindNearestFinish(int start, int finish) const {
     int result = abs(start - finish);
-    if (reachable_lists_.count(start) < 1) {    // O(Log(reachable_lists_.size()))
+    if (reachable_lists_.count(start) < 1) {    // O(log(size))
       return result;
     }
     const vector<int>& reachable_stations =
@@ -22,7 +22,7 @@ public:
     if (!reachable_stations.empty()) {
       result = min(
           result,
-          abs(finish - *min_element(
+          abs(finish - *min_element(            // O(size)
               begin(reachable_stations), end(reachable_stations),
               [finish](int lhs, int rhs) {
                 return abs(lhs - finish) < abs(rhs - finish);
