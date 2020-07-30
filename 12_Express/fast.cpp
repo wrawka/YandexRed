@@ -18,17 +18,21 @@ public:
     reachable_lists_[finish].insert(start);
   }
   int FindNearestFinish(int start, int finish) const {
+    // вычисляем общую длину пути (ОДП)
     int result = abs(start - finish);
+    // если пункт отправления не найден, возвращаем ОДП
     if (reachable_lists_.find(start) == reachable_lists_.end()) {
         return result;
     }
+    // пункт отправления найден, смотрим в пункты прибытия
     const set<int>& reachable_stations = reachable_lists_.at(start);
-    if (!reachable_stations.empty()) {
-      auto guess = *(--reachable_stations.upper_bound(finish));
-      result = min(
-        result,
-        abs(finish - guess)
-      );
+    // пытаемся попасть, куда нужно
+    auto guess = reachable_stations.lower_bound(finish);
+    if (guess != reachable_stations.end()) {
+      result = min( result, abs(finish - *guess) );
+    }
+    if (guess != reachable_stations.begin()) {
+      result = min( result, abs(finish - *prev(guess)) );
     }
     return result;
   }
@@ -51,19 +55,20 @@ void TestRoutes1() {
 void TestRoutes() {
   // Custom
   RouteManager test;
-  // TODO: наполнение!
   test.AddRoute(-2, 5);
   test.AddRoute(10, 4);
   test.AddRoute(5, 8);
-  ASSERT_EQUAL(test.FindNearestFinish(4, 10), 0);
-  ASSERT_EQUAL(test.FindNearestFinish(4, -2), 6);
-  ASSERT_EQUAL(test.FindNearestFinish(5, 0), 2);
-  ASSERT_EQUAL(test.FindNearestFinish(5, 100), 92);
+  test.AddRoute(5, 10);
+  ASSERT_EQUAL(test.FindNearestFinish(10, 8), 2);
+  ASSERT_EQUAL(test.FindNearestFinish(10, 3), 1);
+  ASSERT_EQUAL(test.FindNearestFinish(5, 9), 1);
+  ASSERT_EQUAL(test.FindNearestFinish(5, -5), 3);
 }
 
 int main() {
   TestRunner tr;
   RUN_TEST(tr, TestRoutes1);
+  RUN_TEST(tr, TestRoutes);
 
 
   // RouteManager routes;
