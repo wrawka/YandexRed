@@ -2,21 +2,32 @@
 #include <iostream>
 #include <vector>
 #include <utility>
+#include <set>
+
+#include "test_runner.h"
 
 using namespace std;
+
+struct User {
+  // User(int f, int s) : user_id(f), progress(s) {}
+  int user_id;
+  int progress;
+};
+
+// auto id_ordering = [](User A, User B) { return A.user_id < B.user_id; };
+bool id_ordering (User a, User b) { return a.user_id < b.user_id; }
+bool p_ordering (User a, User b) { return a.progress < b.progress; };
 
 class ReadingManager {
 public:
   ReadingManager()
-      : user_page_counts_(MAX_USER_COUNT_ + 1, 0),
-        sorted_users_(),
-        user_positions_(MAX_USER_COUNT_ + 1, -1) {}
+      : access(MAX_USER_COUNT_ + 1),
+        users() {}
 
   void Read(int user_id, int page_count) {
-    if (user_page_counts_[user_id] == 0) {
-      AddUser(user_id);
-    }
-    user_page_counts_[user_id] = page_count;
+    if (AddUser(user_id, page_count)) return;
+    
+
     int& position = user_positions_[user_id];
     while (position > 0 && page_count > user_page_counts_[sorted_users_[position - 1]]) {
       SwapUsers(position, position - 1);
@@ -24,7 +35,7 @@ public:
   }
 
   double Cheer(int user_id) const {
-    if (user_page_counts_[user_id] == 0) {
+    if (users[user_id] == 0) {
       return 0;
     }
     const int user_count = GetUserCount();
@@ -58,13 +69,27 @@ private:
   vector<int> sorted_users_;   // отсортированы по убыванию количества страниц
   vector<int> user_positions_; // позиции в векторе sorted_users_
 
+  set<User, decltype(p_ordering)> users; // список пользователей, упорядоченный по прогрессу
+  vector< set<User>::iterator > access;  // доступ на список выше
+
+
+
   int GetUserCount() const {
-    return sorted_users_.size();
+    return users.size();
   }
-  void AddUser(int user_id) {
-    sorted_users_.push_back(user_id);
-    user_positions_[user_id] = sorted_users_.size() - 1;
+
+  bool AddUser(int new_id, int p_count = 0) {
+    auto add = users.insert({new_id, p_count});
+    if (add.second) { access[new_id] = add.first; };
+    return add.second;
   }
+
+  void UpdateUser(int user_id, int p_count) {
+    auto user = access[user_id];
+    
+  }
+
+
   void SwapUsers(int lhs_position, int rhs_position) {
     const int lhs_id = sorted_users_[lhs_position];
     const int rhs_id = sorted_users_[rhs_position];
@@ -73,6 +98,24 @@ private:
   }
 };
 
+void TestReadingManager() {
+  // Coursera Test #1
+  ReadingManager rm;
+  ASSERT_EQUAL(rm.Cheer(5), 0);
+  rm.Read(1, 10);
+  ASSERT_EQUAL(rm.Cheer(1), 1);
+  rm.Read(2, 5);
+  rm.Read(3, 7);
+  ASSERT_EQUAL(rm.Cheer(2), 0);
+  ASSERT_EQUAL(rm.Cheer(3), 0.5);
+  rm.Read(3, 10);
+  ASSERT_EQUAL(rm.Cheer(3), 0.5);
+  rm.Read(3, 11);
+  ASSERT_EQUAL(rm.Cheer(3), 1);
+  ASSERT_EQUAL(rm.Cheer(1), 0.5);
+
+}
+
 
 int main() {
   // Для ускорения чтения данных отключается синхронизация
@@ -80,7 +123,9 @@ int main() {
   // а также выполняется отвязка cin от cout
   ios::sync_with_stdio(false);
   cin.tie(nullptr);
-  // TODO: проверь, что тут происходит ^^^
+
+  TestRunner tr;
+  RUN_TEST(tr, TestReadingManager);
 
   ReadingManager manager;
 
