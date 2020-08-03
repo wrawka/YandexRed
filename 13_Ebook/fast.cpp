@@ -3,6 +3,7 @@
 #include <vector>
 #include <utility>
 #include <set>
+#include <algorithm>
 
 #include "test_runner.h"
 
@@ -14,8 +15,10 @@ struct User {
   int progress;
 };
 
+using myIt = set<User>::iterator;
+
 // auto id_ordering = [](User A, User B) { return A.user_id < B.user_id; };
-bool id_ordering (User a, User b) { return a.user_id < b.user_id; }
+// bool id_ordering (User a, User b) { return a.user_id < b.user_id; }
 bool p_ordering (User a, User b) { return a.progress < b.progress; };
 
 class ReadingManager {
@@ -24,37 +27,31 @@ public:
       : access(MAX_USER_COUNT_ + 1),
         users() {}
 
+/* READ user page — сохранить факт того, что пользователь под номером user дочитал книгу до страницы page.
+Если ранее такой пользователь не встречался, необходимо его добавить. 
+Гарантируется, что в рамках одного пользователя номера страниц в соответствующих ему событиях возрастают. */
   void Read(int user_id, int page_count) {
     if (AddUser(user_id, page_count)) return;
-    
-
-    int& position = user_positions_[user_id];
-    while (position > 0 && page_count > user_page_counts_[sorted_users_[position - 1]]) {
-      SwapUsers(position, position - 1);
-    }
+    UpdateUser(user_id, page_count);
   }
 
+/* CHEER user — сообщить пользователю user, какая доля существующих пользователей (не считая его самого)
+прочитала меньшую часть книги, чем он. Если этот пользователь на данный момент единственный, 
+доля считается равной 1. Если для данного пользователя пока не было ни одного события READ, 
+доля считается равной 0, а сам пользователь не учитывается при вычислении долей 
+для других пользователей до тех пор, пока для него не случится событие READ. */
   double Cheer(int user_id) const {
-    if (users[user_id] == 0) {
-      return 0;
-    }
-    const int user_count = GetUserCount();
-    if (user_count == 1) {
-      return 1;
-    }
-    const int page_count = user_page_counts_[user_id];
-    int position = user_positions_[user_id];
-    while (position < user_count &&
-      user_page_counts_[sorted_users_[position]] == page_count) {
-      ++position;
-    }
-    if (position == user_count) {
-        return 0;
-    }
+    const User& user = *access[user_id];
+    if (user.progress == 0) return 0;
+    if (users.size() ==1 ) return 1;
+    User zero{0, 0};
+    auto l_position = users.upper_bound(zero);
+    auto h_position = users.lower_bound(user);
+    double diff = distance(l_position, h_position) / distance(l_position, users.end());
     // По умолчанию деление целочисленное, поэтому
     // нужно привести числитель к типу double.
     // Простой способ сделать это — умножить его на 1.0.
-    return (user_count - position) * 1.0 / (user_count - 1);
+    return diff;
   }
 
 private:
@@ -69,9 +66,9 @@ private:
   vector<int> sorted_users_;   // отсортированы по убыванию количества страниц
   vector<int> user_positions_; // позиции в векторе sorted_users_
 
-  set<User, decltype(p_ordering)> users; // список пользователей, упорядоченный по прогрессу
-  vector< set<User>::iterator > access;  // доступ на список выше
-
+// TODO: not working
+  set<User, decltype(p_ordering)*> users; // список пользователей, упорядоченный по прогрессу
+  vector<myIt> access;  // доступ на список выше
 
 
   int GetUserCount() const {
@@ -86,7 +83,8 @@ private:
 
   void UpdateUser(int user_id, int p_count) {
     auto user = access[user_id];
-    
+    users.erase(user);
+    AddUser(user_id, p_count);
   }
 
 
