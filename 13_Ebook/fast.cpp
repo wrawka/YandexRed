@@ -130,6 +130,7 @@ void TestReadingManager() {
   ASSERT_EQUAL(rm.Cheer(1), 0.5);
   cerr << __LINE__ << " done" << endl;
   rm.Dump();
+  ASSERT_EQUAL(rm.Cheer(2), 0);
   ASSERT_EQUAL(rm.Cheer(3), 0.5);
   cerr << __LINE__ << " done" << endl;
   rm.Read(3, 11);
