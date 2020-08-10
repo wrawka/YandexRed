@@ -5,27 +5,7 @@
 #include <algorithm>
 #include <unordered_set>
 
-#include "test_runner.h"
-
 using namespace std;
-
-template <typename T>
-void PrintSomething(T source, string hint) {
-  cout << "Printing " << hint << ": \n";
-  for (auto out : source) {
-    cout << out << " ";
-  }
-  cout << endl;
-}
-
-
-using Reader = pair<int, int>; //first is pages count, second is user_id
-
-using myIt = unordered_set<int>::iterator;
-
-ostream& operator<<(ostream& os, Reader r) {
-  return os << r.second << ":" << r.first;
-}
 
 class ReadingManager {
 public:
@@ -56,10 +36,7 @@ public:
     // Простой способ сделать это — умножить его на 1.0.
     return (losers) * 1.0 / (user_count - 1);
   }
-  void Dump() {
-    PrintSomething(user_page_count_, "user page count");
-    PrintSomething(user_is_registered, "registration");
-  }
+
 
 private:
   // Статическое поле не принадлежит какому-то конкретному
@@ -68,7 +45,7 @@ private:
   // Будь она публичной, к ней можно было бы обратиться снаружи
   // следующим образом: ReadingManager::MAX_USER_COUNT.
   // TODO: поправь в grader
-  static const int MAX_USER_COUNT_ = 10; //0'000;
+  static const int MAX_USER_COUNT_ = 100'000;
   static const int MAX_PAGE_COUNT_ = 1000;
 
   int user_count = 0;
@@ -98,55 +75,32 @@ private:
 };
 
 
-void TestReadingManager() {
-  // Coursera Test #1
-  ReadingManager rm;
-  ASSERT_EQUAL(rm.Cheer(5), 0);
-  rm.Read(1, 10);
-  ASSERT_EQUAL(rm.Cheer(1), 1);
-  rm.Read(2, 5);
-  rm.Read(3, 7);
-  ASSERT_EQUAL(rm.Cheer(2), 0);
-  ASSERT_EQUAL(rm.Cheer(3), 0.5);
-  rm.Read(3, 10);
-  rm.Dump();
-  ASSERT_EQUAL(rm.Cheer(3), 0.5);
-  rm.Read(3, 11);
-  ASSERT_EQUAL(rm.Cheer(3), 1);
-  ASSERT_EQUAL(rm.Cheer(1), 0.5);
-}
-
 int main() {
   // Для ускорения чтения данных отключается синхронизация
   // cin и cout с stdio,
   // а также выполняется отвязка cin от cout
   ios::sync_with_stdio(false);
   cin.tie(nullptr);
-  // TODO: ^^^ проверь, что тут происходит ^^^
 
-  TestRunner tr;
+  ReadingManager manager;
 
-  RUN_TEST(tr, TestReadingManager);
+  int query_count;
+  cin >> query_count;
 
-  // ReadingManager manager;
+  for (int query_id = 0; query_id < query_count; ++query_id) {
+    string query_type;
+    cin >> query_type;
+    int user_id;
+    cin >> user_id;
 
-  // int query_count;
-  // cin >> query_count;
-
-  // for (int query_id = 0; query_id < query_count; ++query_id) {
-  //   string query_type;
-  //   cin >> query_type;
-  //   int user_id;
-  //   cin >> user_id;
-
-  //   if (query_type == "READ") {
-  //     int page_count;
-  //     cin >> page_count;
-  //     manager.Read(user_id, page_count);
-  //   } else if (query_type == "CHEER") {
-  //     cout << setprecision(6) << manager.Cheer(user_id) << "\n";
-  //   }
-  // }
+    if (query_type == "READ") {
+      int page_count;
+      cin >> page_count;
+      manager.Read(user_id, page_count);
+    } else if (query_type == "CHEER") {
+      cout << setprecision(6) << manager.Cheer(user_id) << "\n";
+    }
+  }
 
   return 0;
 }

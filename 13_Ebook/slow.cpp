@@ -69,7 +69,7 @@ private:
   // в данном случае константная.
   // Будь она публичной, к ней можно было бы обратиться снаружи
   // следующим образом: ReadingManager::MAX_USER_COUNT.
-  static const int MAX_USER_COUNT_ = 10;
+  static const int MAX_USER_COUNT_ = 10; //0'000;
 
   vector<int> user_page_counts_;  // индекс вектора [user_id] -> кол-во страниц
   vector<int> sorted_users_;   // user_id внутри; отсортированы по убыванию количества страниц
@@ -78,10 +78,12 @@ private:
   int GetUserCount() const {    // O(1)
     return sorted_users_.size(); 
   }
+  
   void AddUser(int user_id) {   // O(1)
     sorted_users_.push_back(user_id); 
     user_positions_[user_id] = sorted_users_.size() - 1;
   }
+
   void SwapUsers(int lhs_position, int rhs_position) {
     const int lhs_id = sorted_users_[lhs_position];
     const int rhs_id = sorted_users_[rhs_position];
