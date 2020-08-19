@@ -10,12 +10,12 @@
 using namespace std;
 
 struct Booking {
-  long long int time = 0;
-  unsigned long int client_id = 0;
-  int rooms = 0;
+  int64_t time;
+  unsigned long int client_id;
+  int rooms;
 };
 
-ostream& operator<<(ostream& os, Booking b) {
+ostream& operator<<(ostream& os, const Booking& b) {
   os << "time: " << b.time << " ";
   os << "client_id: " << b.client_id << " ";
   os << "rooms: " << b.rooms << endl;
@@ -25,11 +25,11 @@ ostream& operator<<(ostream& os, Booking b) {
 class BookingSystem {
 private:
   static const int secin24 = 86400; // seconds in 24 hours
-  long long int current_time; // = -1'000'000'000'000'000'000;
+  int64_t current_time = -1'000'000'000'000'000'000;
   map<string, vector<Booking>> bookings;
 
 public:
-  void NewBooking(const long long int& time
+  void NewBooking(const int64_t& time
                 , const string& hotel_name
                 , const unsigned long int& client_id
                 , int room_count);
@@ -37,26 +37,22 @@ public:
   int GetRooms(const string& hotel_name);
 };
 
-void BookingSystem::NewBooking(const long long int& time
+void BookingSystem::NewBooking(const int64_t& time
                             , const string& hotel_name
                             , const unsigned long int& client_id
                             , int room_count)
 {
   current_time = time;
   bookings[hotel_name].push_back(Booking{time, client_id, room_count});
-  // cout << Booking{time, client_id, room_count};
 }
 
 int BookingSystem::GetClients(const string& hotel_name) {
   unordered_set<unsigned long> result;
   auto hotel = bookings[hotel_name];
   if (hotel.empty()) return 0;
-  // cout << "delta_time is: " << (current_time - secin24) << endl;
-  for (auto it = hotel.rbegin(); ((*it).time > (current_time - secin24) && it != hotel.rend()); it++) {
-    // cout << *it;
+  for (auto it = hotel.rbegin(); (it != hotel.rend() && (*it).time > (current_time - secin24)); it++) {
     result.insert((*it).client_id);
   }
-  // cout << endl;
   return result.size();
 }
 
@@ -64,7 +60,7 @@ int BookingSystem::GetRooms(const string& hotel_name) {
   int result = 0;
   auto hotel = bookings[hotel_name];
   if (hotel.empty()) return 0;
-  for (auto it = hotel.rbegin(); ((*it).time > (current_time - secin24) && it != hotel.rend()); it++) {
+  for (auto it = hotel.rbegin(); (it != hotel.rend() && (*it).time > (current_time - secin24)); it++) {
     result += (*it).rooms;
   }
   return result;
@@ -77,13 +73,42 @@ int BookingSystem::GetRooms(const string& hotel_name) {
 //   ts.NewBooking(10, "FourSeasons", 1, 2);
 //   ts.NewBooking(10, "Marriott", 1, 1);
 //   ts.NewBooking(86409, "FourSeasons", 2, 1);
-//   //
 //   ASSERT_EQUAL(ts.GetClients("FourSeasons"), 2);
 //   ASSERT_EQUAL(ts.GetRooms("FourSeasons"), 3);
 //   ASSERT_EQUAL(ts.GetClients("Marriott"), 1);
 //   ts.NewBooking(86410, "Marriott", 2, 10);
 //   ASSERT_EQUAL(ts.GetRooms("FourSeasons"), 1);
 //   ASSERT_EQUAL(ts.GetRooms("Marriott"), 10);
+// }
+
+// void TestClients() {
+//   BookingSystem bs;
+//   bs.NewBooking(0, "q", 0, 1);
+//   ASSERT_EQUAL(bs.GetClients("q"), 1);
+//   ASSERT_EQUAL(bs.GetRooms("q"), 1);
+//   bs.NewBooking(10, "q", 0, 3);
+//   ASSERT_EQUAL(bs.GetClients("q"), 1);
+//   ASSERT_EQUAL(bs.GetRooms("q"), 4);
+//   bs.NewBooking(86411, "q", 3, 1);
+//   ASSERT_EQUAL(bs.GetClients("q"), 1);
+//   ASSERT_EQUAL(bs.GetRooms("q"), 1);
+// }
+
+// void Test00() {
+//   BookingSystem bs;
+//   bs.NewBooking(1, "RED", 11, 4);
+//   bs.NewBooking(50000, "RED", 11, 5);
+//   bs.NewBooking(90000, "RED", 22, 2);
+//   ASSERT_EQUAL(bs.GetClients("RED"), 2);
+//   ASSERT_EQUAL(bs.GetRooms("RED"), 7);
+// }
+
+// void Test01() {
+//   BookingSystem bs;
+//   bs.NewBooking(-86400, "hotel", 2, 2);
+//   bs.NewBooking(0, "hotel", 1, 5);
+//   ASSERT_EQUAL(bs.GetClients("hotel"), 1);
+//   ASSERT_EQUAL(bs.GetRooms("hotel"), 5);
 // }
 
 
@@ -97,18 +122,21 @@ int main() {
   // TestRunner tr;
 
   // RUN_TEST(tr, TestBooking);
+  // RUN_TEST(tr, TestClients);
+  // RUN_TEST(tr, Test00);
+  // RUN_TEST(tr, Test01);
 
-  int query_count;
+  unsigned long int query_count;
   cin >> query_count; // Q <= 10^5
 
   BookingSystem bs;
 
-  for (int query_id = 0; query_id < query_count; ++query_id) {
+  for (unsigned long int query_id = 0; query_id < query_count; ++query_id) {
     string query_type;
     cin >> query_type;
 
     if (query_type == "BOOK") {
-      long long int time; // -10^18 < time < 10^18
+      int64_t time; // -10^18 < time < 10^18
       cin >> time;
       string hotel_name;  // hotel_name < 12 characters
       cin >> hotel_name;
