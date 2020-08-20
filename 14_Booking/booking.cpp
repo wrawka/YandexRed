@@ -1,11 +1,13 @@
 #include <iostream>
 #include <vector>
 #include <utility>
-#include <map>
+#include <unordered_map>
 #include <algorithm>
 #include <unordered_set>
 
-#include "test_runner.h"
+// #include "test_runner.h"
+
+// Failed case #15/17: time limit exceeded (Time used: 1.99/1.00)
 
 using namespace std;
 
@@ -26,10 +28,7 @@ class BookingSystem {
 private:
   static const int secin24 = 86400; // seconds in 24 hours
   int64_t current_time = -1'000'000'000'000'000'000;
-    map<string, vector<Booking>> bookings;
-    map<string, pair<int, int>> bookings_state; // pair.first = rooms | pair.second = clients
-    bool new_booking = false;
-    void UpdateState(const string& hotel_name);
+  unordered_map<string, vector<Booking>> bookings;
 
 public:
   void NewBooking(const int64_t& time
@@ -45,84 +44,74 @@ void BookingSystem::NewBooking(const int64_t& time
                             , const unsigned long int& client_id
                             , int room_count)
 {
-  current_time = time; // update latest booking timecode
+  current_time = time;
   bookings[hotel_name].push_back(Booking{time, client_id, room_count});
-  for (auto hotel : bookings) {
-    unordered_set<unsigned long> clients_24H;
-    int rooms_24H = 0;
-    for (auto it = hotel.second.rbegin(); (it != hotel.second.rend() && (*it).time > (current_time - secin24)); it++) {
-      clients_24H.insert((*it).client_id);
-      rooms_24H += (*it).rooms;
-    }
-    bookings_state[hotel.first] = make_pair(rooms_24H, clients_24H.size());
-  }
 }
 
 int BookingSystem::GetClients(const string& hotel_name) {
-  if (bookings[hotel_name].empty()) { 
-    return 0;
-  } else {
-    return bookings_state[hotel_name].second;
+  unordered_set<unsigned long> result;
+  auto hotel = bookings[hotel_name];
+  if (hotel.empty()) return 0;
+  for (auto it = hotel.rbegin(); (it != hotel.rend() && (*it).time > (current_time - secin24)); it++) {
+    result.insert((*it).client_id);
   }
+  return result.size();
 }
 
 int BookingSystem::GetRooms(const string& hotel_name) {
-  if (bookings[hotel_name].empty()) { 
-    return 0;
-  } else {
-    return bookings_state[hotel_name].first;
+  int result = 0;
+  auto hotel = bookings[hotel_name];
+  if (hotel.empty()) return 0;
+  for (auto it = hotel.rbegin(); (it != hotel.rend() && (*it).time > (current_time - secin24)); it++) {
+    result += (*it).rooms;
   }
+  return result;
 }
 
-void BookingSystem::UpdateState(const string& hotel_name) {
+// void TestBooking() {
+//   BookingSystem ts;
+//   ASSERT_EQUAL(ts.GetClients("Marriott"), 0);
+//   ASSERT_EQUAL(ts.GetRooms("Marriott"), 0);
+//   ts.NewBooking(10, "FourSeasons", 1, 2);
+//   ts.NewBooking(10, "Marriott", 1, 1);
+//   ts.NewBooking(86409, "FourSeasons", 2, 1);
+//   ASSERT_EQUAL(ts.GetClients("FourSeasons"), 2);
+//   ASSERT_EQUAL(ts.GetRooms("FourSeasons"), 3);
+//   ASSERT_EQUAL(ts.GetClients("Marriott"), 1);
+//   ts.NewBooking(86410, "Marriott", 2, 10);
+//   ASSERT_EQUAL(ts.GetRooms("FourSeasons"), 1);
+//   ASSERT_EQUAL(ts.GetRooms("Marriott"), 10);
+// }
 
-}
+// void TestClients() {
+//   BookingSystem bs;
+//   bs.NewBooking(0, "q", 0, 1);
+//   ASSERT_EQUAL(bs.GetClients("q"), 1);
+//   ASSERT_EQUAL(bs.GetRooms("q"), 1);
+//   bs.NewBooking(10, "q", 0, 3);
+//   ASSERT_EQUAL(bs.GetClients("q"), 1);
+//   ASSERT_EQUAL(bs.GetRooms("q"), 4);
+//   bs.NewBooking(86411, "q", 3, 1);
+//   ASSERT_EQUAL(bs.GetClients("q"), 1);
+//   ASSERT_EQUAL(bs.GetRooms("q"), 1);
+// }
 
-void TestBooking() {
-  BookingSystem ts;
-  ASSERT_EQUAL(ts.GetClients("Marriott"), 0);
-  ASSERT_EQUAL(ts.GetRooms("Marriott"), 0);
-  ts.NewBooking(10, "FourSeasons", 1, 2);
-  ts.NewBooking(10, "Marriott", 1, 1);
-  ts.NewBooking(86409, "FourSeasons", 2, 1);
-  ASSERT_EQUAL(ts.GetClients("FourSeasons"), 2);
-  ASSERT_EQUAL(ts.GetRooms("FourSeasons"), 3);
-  ASSERT_EQUAL(ts.GetClients("Marriott"), 1);
-  ts.NewBooking(86410, "Marriott", 2, 10);
-  // 
-  ASSERT_EQUAL(ts.GetRooms("FourSeasons"), 1);
-  ASSERT_EQUAL(ts.GetRooms("Marriott"), 10);
-}
+// void Test00() {
+//   BookingSystem bs;
+//   bs.NewBooking(1, "RED", 11, 4);
+//   bs.NewBooking(50000, "RED", 11, 5);
+//   bs.NewBooking(90000, "RED", 22, 2);
+//   ASSERT_EQUAL(bs.GetClients("RED"), 2);
+//   ASSERT_EQUAL(bs.GetRooms("RED"), 7);
+// }
 
-void TestClients() {
-  BookingSystem bs;
-  bs.NewBooking(0, "q", 0, 1);
-  ASSERT_EQUAL(bs.GetClients("q"), 1);
-  ASSERT_EQUAL(bs.GetRooms("q"), 1);
-  bs.NewBooking(10, "q", 0, 3);
-  ASSERT_EQUAL(bs.GetClients("q"), 1);
-  ASSERT_EQUAL(bs.GetRooms("q"), 4);
-  bs.NewBooking(86411, "q", 3, 1);
-  ASSERT_EQUAL(bs.GetClients("q"), 1);
-  ASSERT_EQUAL(bs.GetRooms("q"), 1);
-}
-
-void Test00() {
-  BookingSystem bs;
-  bs.NewBooking(1, "RED", 11, 4);
-  bs.NewBooking(50000, "RED", 11, 5);
-  bs.NewBooking(90000, "RED", 22, 2);
-  ASSERT_EQUAL(bs.GetClients("RED"), 2);
-  ASSERT_EQUAL(bs.GetRooms("RED"), 7);
-}
-
-void Test01() {
-  BookingSystem bs;
-  bs.NewBooking(-86400, "hotel", 2, 2);
-  bs.NewBooking(0, "hotel", 1, 5);
-  ASSERT_EQUAL(bs.GetClients("hotel"), 1);
-  ASSERT_EQUAL(bs.GetRooms("hotel"), 5);
-}
+// void Test01() {
+//   BookingSystem bs;
+//   bs.NewBooking(-86400, "hotel", 2, 2);
+//   bs.NewBooking(0, "hotel", 1, 5);
+//   ASSERT_EQUAL(bs.GetClients("hotel"), 1);
+//   ASSERT_EQUAL(bs.GetRooms("hotel"), 5);
+// }
 
 
 int main() {
@@ -132,12 +121,12 @@ int main() {
   ios::sync_with_stdio(false);
   cin.tie(nullptr);
 
-  TestRunner tr;
+  // TestRunner tr;
 
-  RUN_TEST(tr, TestBooking);
-  RUN_TEST(tr, TestClients);
-  RUN_TEST(tr, Test00);
-  RUN_TEST(tr, Test01);
+  // RUN_TEST(tr, TestBooking);
+  // RUN_TEST(tr, TestClients);
+  // RUN_TEST(tr, Test00);
+  // RUN_TEST(tr, Test01);
 
   unsigned long int query_count;
   cin >> query_count; // Q <= 10^5
