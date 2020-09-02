@@ -11,15 +11,51 @@ using namespace std;
 template <class T>
 class ObjectPool {
 public:
-  T* Allocate();
-  T* TryAllocate();
+  T* Allocate() {
+    if (reserved_obj.empty()) {
+      T* objP = new T;
+      auto it = active_obj.insert(objP).first;
+      return *it;
+    } else {
+      auto it = active_obj.insert(reserved_obj.front()).first;
+      reserved_obj.pop();
+      return *it;
+    }
+  }
+  T* TryAllocate() {
+     if (reserved_obj.empty()) {
+      return nullptr;
+    } else {
+      auto it = active_obj.insert(reserved_obj.front()).first;
+      reserved_obj.pop();
+      return *it;
+    }
+  }
 
-  void Deallocate(T* object);
+  void Deallocate(T* object) {
+    if (active_obj.find(object) != active_obj.end()) {
+      reserved_obj.push(object);
+      active_obj.erase(object);
+    } else {
+      throw invalid_argument("no object");
+    }
+  }
 
-  ~ObjectPool();
+  ~ObjectPool() {
+    for (auto d : active_obj) {
+      delete d;
+    }
+    while (!reserved_obj.empty()) {
+      delete reserved_obj.front();
+      reserved_obj.pop();
+    }
+    
+  }
 
 private:
   // Добавьте сюда поля
+  set<T*> active_obj;
+  queue<T*> reserved_obj;
 };
 
 void TestObjectPool() {
