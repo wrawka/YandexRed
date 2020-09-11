@@ -13,10 +13,10 @@ void Swap(T* first, T* second) {
 
 template <typename T>
 void SortPointers(vector<T*>& pointers) {
-  for (int i = 1; i != pointers.size(); i++) {
-    auto key = pointers[i];
+  for (int i = 1; i != pointers.size(); i++) { // перебор входной последовательности
+    auto key = pointers[i]; // сохраняем значение i-го элемента входной последовательности
     auto j = i - 1;
-    while (j >= 0 && *pointers[j] > *key) {
+    while (j >= 0 && *pointers[j] > *key) { // перебор элементов от первого до i-го, больших i-го(?)
       pointers[j + 1] = pointers[j];
       j -= 1;
     }
