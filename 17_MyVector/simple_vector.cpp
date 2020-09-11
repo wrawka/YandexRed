@@ -26,10 +26,12 @@ void TestConstruction() {
 void TestPushBack() {
   SimpleVector<int> v;
   for (int i = 10; i >= 1; --i) {
+    cout << "Pushing " << i << endl;
     v.PushBack(i);
     ASSERT(v.Size() <= v.Capacity());
   }
   sort(begin(v), end(v));
+  cout << "Sort done\n";
 
   const vector<int> expected = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   ASSERT_EQUAL(v.Size(), expected.size());
@@ -37,6 +39,13 @@ void TestPushBack() {
 }
 
 int main() {
+
+  // int* data = new int;
+  // *data = 50;
+  // int* end_ = data + 1;
+  // *end_ = 100;
+  // cout << data << ": " << *data << endl;
+  // cout << end_ << ": " << *end_ << endl;
   TestRunner tr;
   RUN_TEST(tr, TestConstruction);
   RUN_TEST(tr, TestPushBack);
