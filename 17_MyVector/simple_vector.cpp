@@ -28,6 +28,11 @@ void TestPushBack() {
   for (int i = 10; i >= 1; --i) {
     cout << "Pushing " << i << endl;
     v.PushBack(i);
+    for (auto out : v) {
+      cout << out << " ";
+    }
+    cout << "  S:" << v.Size() << " C:" << v.Capacity();
+    cout << endl;
     ASSERT(v.Size() <= v.Capacity());
   }
   sort(begin(v), end(v));
@@ -39,13 +44,6 @@ void TestPushBack() {
 }
 
 int main() {
-
-  // int* data = new int;
-  // *data = 50;
-  // int* end_ = data + 1;
-  // *end_ = 100;
-  // cout << data << ": " << *data << endl;
-  // cout << end_ << ": " << *end_ << endl;
   TestRunner tr;
   RUN_TEST(tr, TestConstruction);
   RUN_TEST(tr, TestPushBack);
