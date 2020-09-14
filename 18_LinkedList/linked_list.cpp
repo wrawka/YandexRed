@@ -11,12 +11,33 @@ public:
     Node* next = nullptr;
   };
 
-  ~LinkedList();
+  ~LinkedList() {
+    for (auto node = GetHead(); node; node = node->next) {
+      PopFront();
+    }
+  }
 
-  void PushFront(const T& value);
-  void InsertAfter(Node* node, const T& value);
-  void RemoveAfter(Node* node);
-  void PopFront();
+  void PushFront(const T& value) {
+    head = new Node{value, head};
+  }
+  void InsertAfter(Node* node, const T& value) {
+    if (node == nullptr) { PushFront(value); }
+    else { node->next = new Node{value, node->next}; }
+  }
+  void RemoveAfter(Node* node) {
+    if (node == nullptr) { PopFront(); }
+    else {
+      Node* temp = node->next;
+      node->next = temp->next;
+      delete temp; 
+    }
+  }
+  void PopFront() {
+    Node* temp = head->next;
+    delete head;
+    head = temp;
+    temp = nullptr;
+  }
 
   Node* GetHead() { return head; }
   const Node* GetHead() const { return head; }
