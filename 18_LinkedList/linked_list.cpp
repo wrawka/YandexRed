@@ -12,7 +12,7 @@ public:
   };
 
   ~LinkedList() {
-    for (auto node = GetHead(); node; node = node->next) {
+    while (head != nullptr) {
       PopFront();
     }
   }
@@ -33,6 +33,7 @@ public:
     }
   }
   void PopFront() {
+    if (head == nullptr) return;
     Node* temp = head->next;
     delete head;
     head = temp;
