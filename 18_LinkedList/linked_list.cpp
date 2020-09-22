@@ -11,29 +11,44 @@ public:
     Node* next = nullptr;
   };
 
+  /* Деструктор класса LinkedList освобождает всю память,
+  / выделенную для хранения элементов списка. */
   ~LinkedList() {
     while (head != nullptr) {
       PopFront();
     }
   }
 
+  /* Метод PushFront добавляет новый элемент в голову списка. */
   void PushFront(const T& value) {
     head = new Node{value, head};
   }
+
+  /* Метод InsertAfter вставляет новый элемент в список так, чтобы он шёл после узла node.
+  / Если node == nullptr, метод эквивалентен PushFront */
   void InsertAfter(Node* node, const T& value) {
     if (node == nullptr) { PushFront(value); }
     else { node->next = new Node{value, node->next}; }
   }
+
+  /* Метод RemoveAfter должен удалять из списка элемент, который следует за узлом node,
+  /  и освобождать выделенную под него память. Если node == nullptr, метод эквивалентен PopFront.
+  /  Если node->next == nullptr, то метод должен корректно завершаться. */
   void RemoveAfter(Node* node) {
     if (node == nullptr) { PopFront(); }
+    else if (node->next == nullptr) { return; }
     else {
       Node* temp = node->next;
       node->next = temp->next;
       delete temp; 
     }
   }
+
+  /* Метод PopFront удаляет элемент из головы списка и освобождает выделенную под него память.
+  /  Если список пуст, метод завершается корректно. Если после выполнения метода список стал пустым,
+  /  метод GetHead должен возвращать nullptr */
   void PopFront() {
-    if (head == nullptr) return;
+    if (head == nullptr) { return; }
     Node* temp = head->next;
     delete head;
     head = temp;
