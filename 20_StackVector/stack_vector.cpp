@@ -1,7 +1,7 @@
 #include "stack_vector.h"
 
 #include "test_runner.h"
-#include "profile.h"
+#include "profiler.h"
 
 #include <random>
 #include <stdexcept>
