@@ -1,5 +1,5 @@
 #include "test_runner.h"
-#include "profiler.h"
+#include "profile.h"
 
 #include <algorithm>
 #include <array>
@@ -15,55 +15,54 @@ class AirportCounter {
 public:
   // конструктор по умолчанию: список элементов пока пуст
   AirportCounter() {
-    size_t _size = static_cast<size_t>(TAirport::Last_);
-    _data.resize(_size);
-    for (auto i = 0; i != _size; i++) {
-      _data.at(i) = {static_cast<TAirport>(i), 0};
-    }
-  }
+    _data.fill(0u);
+  };
 
   // конструктор от диапазона элементов типа TAirport
   template <typename TIterator>
   AirportCounter(TIterator begin, TIterator end) : AirportCounter() {
     for (auto it = begin; it != end; ++it) {
-      _data.at(static_cast<uint32_t>(*it)).first = *it;
       Insert(*it);
     }
   }
 
   // получить количество элементов, равных данному
   size_t Get(TAirport airport) const {
-    return _data.at(static_cast<uint32_t>(airport)).second;
+    return _data.at(static_cast<uint32_t>(airport));
   }
 
   // добавить данный элемент
   void Insert(TAirport airport) {
-    _data.at(static_cast<uint32_t>(airport)).second++;
+    _data.at(static_cast<uint32_t>(airport))++;
   }
 
   // удалить одно вхождение данного элемента
   void EraseOne(TAirport airport) {
-    _data.at(static_cast<uint32_t>(airport)).second--;
+    _data.at(static_cast<uint32_t>(airport))--;
   }
 
   // удалить все вхождения данного элемента
   void EraseAll(TAirport airport) {
-    _data.at(static_cast<uint32_t>(airport)).second = 0;
+    _data.at(static_cast<uint32_t>(airport)) = 0;
   }
 
   using Item = pair<TAirport, size_t>;
-  using Items = vector<Item>; /* ??? */
+  using Items = array<Item, static_cast<size_t>(TAirport::Last_)>; /* ??? */
 
   // получить некоторый объект, по которому можно проитерироваться,
   // получив набор объектов типа Item - пар (аэропорт, количество),
   // упорядоченных по аэропорту
   Items GetItems() const {
-    return _data;
+    Items output_data;
+    for (auto i = 0; i != _data.size(); i++) {
+      output_data.at(i) = {static_cast<TAirport>(i), _data.at(i)};
+    }
+    return output_data;
   }
 
 private:
   // ???
-  vector<Item> _data;
+  array<size_t, static_cast<size_t>(TAirport::Last_)> _data;
   
 };
 
@@ -84,6 +83,7 @@ void TestMoscow() {
   };
   AirportCounter<MoscowAirport> airport_counter(begin(airports), end(airports));
 
+
   ASSERT_EQUAL(airport_counter.Get(MoscowAirport::VKO), 1);
   ASSERT_EQUAL(airport_counter.Get(MoscowAirport::SVO), 2);
   ASSERT_EQUAL(airport_counter.Get(MoscowAirport::DME), 0);
@@ -95,11 +95,6 @@ void TestMoscow() {
     items.push_back(item);
   }
   ASSERT_EQUAL(items.size(), 4);
-
-  for (auto out : items) {
-    cout << static_cast<int>(out.first) << ": " << out.second << endl;
-
-  }
 
 #define ASSERT_EQUAL_ITEM(idx, expected_enum, expected_count) \
   do { \
@@ -237,9 +232,17 @@ int main() {
   // Кроме того, не забудьте включить оптимизации при компиляции кода.
 
   LOG_DURATION("Total tests duration");
+  { LOG_DURATION("TestMoscow duration");
   RUN_TEST(tr, TestMoscow);
-  // RUN_TEST(tr, TestManyConstructions);
-  // RUN_TEST(tr, TestManyGetItems);
+  }
+  { LOG_DURATION("TestManyConstructions duration");
+  RUN_TEST(tr, TestManyConstructions);
+  }
+  { LOG_DURATION("TestManyGetItems duration");
+  RUN_TEST(tr, TestManyGetItems);
+  }
+  { LOG_DURATION("TestMostPopularAirport duration");
   RUN_TEST(tr, TestMostPopularAirport);
+  }
   return 0;
 }
