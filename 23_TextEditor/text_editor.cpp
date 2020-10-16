@@ -5,7 +5,7 @@ using namespace std;
 class Editor {
  public:
   // Реализуйте конструктор по умолчанию и объявленные методы
-  Editor();
+  Editor() = default;
   void Left();
   void Right();
   void Insert(char token);
@@ -13,7 +13,54 @@ class Editor {
   void Copy(size_t tokens = 1);
   void Paste();
   string GetText() const;
+
+private:
+  void FlushBuffer();
+  size_t coursor_position = 0;
+  string text;
+  string buffer;
 };
+
+void Editor::Left() {
+  if (coursor_position != 0) {
+    coursor_position--;
+  }
+}
+
+void Editor::Right() {
+  if (coursor_position != text.size()) {
+    coursor_position++;
+  }
+}
+
+void Editor::Insert(char token) {
+  text.insert(coursor_position, 1, static_cast<const char>(token));
+  coursor_position++;
+}
+
+void Editor::Cut(size_t tokens) {
+  FlushBuffer();
+  buffer = text.substr(coursor_position, tokens);
+  text.erase(coursor_position, tokens);
+}
+
+void Editor::Copy(size_t tokens) {
+  FlushBuffer();
+  buffer = text.substr(coursor_position, tokens);
+}
+
+void Editor::Paste() {
+  text.insert(coursor_position, buffer);
+  coursor_position += buffer.size();
+}
+
+void Editor::FlushBuffer() {
+  buffer.clear();
+}
+
+string Editor::GetText() const {
+  return text;
+}
 
 void TypeText(Editor& editor, const string& text) {
   for(char c : text) {
