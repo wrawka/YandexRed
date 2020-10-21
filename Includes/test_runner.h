@@ -95,13 +95,13 @@ private:
   int fail_count = 0;
 };
 
-#define ASSERT_EQUAL(x , y) {           \
+#define ASSERT_EQUAL(x , y) {            \
   ostringstream os_ ;                    \
   os_ << __FILE__ << " : " << __LINE__ ; \
   AssertEqual(x , y , os_.str ()) ;      \
 }
 
-#define ASSERT(x) {                     \
+#define ASSERT(x) {                      \
   ostringstream os_ ;                    \
   os_ << __FILE__ << " : " << __LINE__ ; \
   Assert(x , os_.str ()) ;               \
