@@ -29,32 +29,15 @@ const map<string_view, int>& Stats::GetUriStats() const {
 
 HttpRequest ParseRequest(string_view line) {
   HttpRequest return_value;
-  for (string_view* out : {&return_value.method, &return_value.protocol, &return_value.uri}){ 
-    *out = string_view();
+  for (string_view* out : {&return_value.method, &return_value.uri, &return_value.protocol}) {
+    line.remove_prefix(min(line.find_first_not_of(" "), line.size()));
+    // cout << "\"" << line << "\"\n";
+    size_t c_count = min( line.find_first_of(" "), line.size() );
+    // cout << "c_count: " << c_count << endl;
+    *out = string_view(line.data(), c_count);
+    // cout << "out is: \"" << *out << "\"\n";
+    line.remove_prefix(c_count);
   };
-  auto c_count = line.find_first_of(" ");
-  return_value.method = string_view(line.data(), c_count);
-  line.remove_prefix(c_count);
-  c_count = line.find_first_of(" ");
-  return_value.uri = string_view(line.data(), c_count);
-  line.remove_prefix(c_count);
-  c_count = line.find_first_of(" ");
-  return_value.protocol = string_view(line.data(), c_count);
-  line.remove_prefix(c_count);
-
-	std::cout << return_value.method << "/" << return_value.uri << "/" << return_value.protocol << std::endl;
+	// std::cout << return_value.method << "/" << return_value.uri << "/" << return_value.protocol << std::endl;
   return return_value;
-}
-
-
-struct SomeStruct {
-  int field1, field2, field3;
-};
-
-void DoShit() {
-  SomeStruct ss;
-  for (auto& _s : {ss.field1, ss.field2, ss.field3}) {
-    cout << typeid(_s).name();
-    // write something to _s
-  }
 }
