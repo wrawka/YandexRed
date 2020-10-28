@@ -30,14 +30,15 @@ const map<string_view, int>& Stats::GetUriStats() const {
 HttpRequest ParseRequest(string_view line) {
   HttpRequest return_value;
   for (string_view* out : {&return_value.method, &return_value.uri, &return_value.protocol}) {
+    // remove leading whitespace if any
     line.remove_prefix(min(line.find_first_not_of(" "), line.size()));
-    // cout << "\"" << line << "\"\n";
+
+    // evaluate next chunk size and write the data
     size_t c_count = min( line.find_first_of(" "), line.size() );
-    // cout << "c_count: " << c_count << endl;
     *out = string_view(line.data(), c_count);
-    // cout << "out is: \"" << *out << "\"\n";
+
+    // remove processed chunk from string_view
     line.remove_prefix(c_count);
   };
-	// std::cout << return_value.method << "/" << return_value.uri << "/" << return_value.protocol << std::endl;
   return return_value;
 }
