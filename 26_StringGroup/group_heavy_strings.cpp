@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <set>
+#include <map>
 
 using namespace std;
 
@@ -21,9 +23,43 @@ template <typename String>
 using Char = typename String::value_type;
 
 template <typename String>
+set<Char<String>> MakeUnique(const String& input) {
+  set<Char<String>> out{input.begin(), input.end()};
+  return move(out);
+}
+
+template <typename RandomIt>
+void PrintRange(RandomIt first, RandomIt last) {
+  cout << "{ ";
+  for (auto it = first; it != last; it++) {
+    cout << *it << " ";
+  }
+  cout << "}\n";
+}
+
+template <typename String>
 vector<Group<String>> GroupHeavyStrings(vector<String> strings) {
   // Напишите реализацию функции,
   // использовав не более 1 копирования каждого символа
+  vector<Group<String>> results;
+  map< set<Char<String>>, Group<String> > collection;
+  for (auto& str : strings) {
+    collection[MakeUnique(str)].push_back(move(str));
+  }
+  /*
+  for (auto& out : collection) {
+    cout << "Key: " << out.first << endl;
+    PrintRange(out.second.begin(), out.second.end());
+  }*/
+  for (auto& out : collection) {
+    results.push_back(move(out.second));
+  }
+  /*
+  cout << "Results:\n";
+  for (auto & out : results) {
+    PrintRange(out.begin(), out.end());
+  }*/
+  return results;
 }
 
 
