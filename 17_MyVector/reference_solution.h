@@ -8,9 +8,11 @@ class SimpleVector {
 public:
   SimpleVector() = default;
   explicit SimpleVector(size_t size);
+  SimpleVector(const SimpleVector& other);
   ~SimpleVector();
 
   T& operator[](size_t index);
+  SimpleVector& operator=(const SimpleVector& other);
 
   T* begin();
   T* end();
@@ -74,4 +76,27 @@ T* SimpleVector<T>::begin() {
 template <typename T>
 T* SimpleVector<T>::end() {
   return data + size;
+}
+
+// добавлено для задачи 27
+
+template <typename T>
+SimpleVector<T>::SimpleVector(const SimpleVector<T>& other) 
+  : data (new T[other.capacity]),
+    size(other.size),
+    capacity(other.capacity)
+{
+  copy(other.begin(), other.end(), begin());
+}
+
+template <typename T>
+SimpleVector<T>& SimpleVector<T>::operator=(const SimpleVector<T>& other) {
+  delete[] data;
+  data = new T[other.capacity];
+  size = other.size;
+  capacity = other.capacity;
+  for (size_t i = 0; i < size; i++) {
+    data[i] = other.data[i];
+  }
+  return *this;
 }
