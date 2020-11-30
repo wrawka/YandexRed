@@ -9,10 +9,12 @@ public:
   SimpleVector() = default;
   explicit SimpleVector(size_t size);
   SimpleVector(const SimpleVector& other);
+  SimpleVector(SimpleVector&& other);
   ~SimpleVector();
 
   T& operator[](size_t index);
   SimpleVector& operator=(const SimpleVector& other);
+  SimpleVector& operator=(SimpleVector&& other);
 
   T* begin();
   T* end();
@@ -20,6 +22,7 @@ public:
   size_t Size() const;
   size_t Capacity() const;
   void PushBack(const T& value);
+  void PushBack(T&& value);
 
 private:
   T* data = nullptr;
@@ -69,6 +72,19 @@ void SimpleVector<T>::PushBack(const T& value) {
 }
 
 template <typename T>
+void SimpleVector<T>::PushBack(T&& value) {
+  if (size >= capacity) {
+    auto new_cap = capacity == 0 ? 1 : 2 * capacity;
+    auto new_data = new T[new_cap];
+    move(begin(), end(), new_data);
+    delete[] data;
+    data = new_data;
+    capacity = new_cap;
+  }
+  data[size++] = move(value);
+}
+
+template <typename T>
 T* SimpleVector<T>::begin() {
   return data;
 }
@@ -90,6 +106,15 @@ SimpleVector<T>::SimpleVector(const SimpleVector<T>& other)
 }
 
 template <typename T>
+SimpleVector<T>::SimpleVector(SimpleVector<T>&& other) 
+  : data (new T[other.capacity]),
+    size(other.size),
+    capacity(other.capacity)
+{
+  move(other.begin(), other.end(), begin());
+}
+
+template <typename T>
 SimpleVector<T>& SimpleVector<T>::operator=(const SimpleVector<T>& other) {
   delete[] data;
   data = new T[other.capacity];
@@ -100,6 +125,19 @@ SimpleVector<T>& SimpleVector<T>::operator=(const SimpleVector<T>& other) {
   }
   return *this;
 }
+
+template <typename T>
+SimpleVector<T>& SimpleVector<T>::operator=(SimpleVector<T>&& other) {
+  delete[] data;
+  data = new T[other.capacity];
+  size = other.size;
+  capacity = other.capacity;
+  for (size_t i = 0; i < size; i++) {
+    data[i] = move(other.data[i]);
+  }
+  return *this;
+}
+
 
 // reference solution #27
 

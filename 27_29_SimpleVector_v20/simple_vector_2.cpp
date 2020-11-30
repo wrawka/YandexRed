@@ -1,4 +1,5 @@
-#include "simple_vector_2.h"
+// #include "simple_vector_2.h"
+#include "reference_solution.h"
 #include "test_runner.h"
 
 #include <algorithm>
