@@ -1,35 +1,42 @@
 #include "test_runner.h"
+// #include "logging.h"
+// #include "profile.h"
 
 #include <cstdint>
 #include <iterator>
 #include <numeric>
 #include <vector>
+#include <list>
+#include <random>
 
 using namespace std;
 
+static const uint32_t MAX_SIZE = 1e5;
+
+// макс. размер диапазона (n) : 10^5
+// макс. размер шага      (m) : 10^2
+
 template <typename RandomIt>
 void MakeJosephusPermutation(RandomIt first, RandomIt last, uint32_t step_size) {
-  
-  // референсная копия последовательности, для обработки алгоритмом
-  vector<typename RandomIt::value_type> pool(first, last);
-
-  // начало обработки - первый элемент последовательности
-  size_t cur_pos = 0;
-
+  list<typename RandomIt::value_type> pool
+    (make_move_iterator(first), make_move_iterator(last));
+  // size_t cur_pos = 0;
+  auto point = pool.begin();
   while (!pool.empty()) {
-    *(first++) = pool[cur_pos];
-
-    // std::vector<T,Allocator>::erase
-    // Erases the specified elements from the container.
-    // Removes the element at pos == (pool.begin() + cur_pos)
-    // 
-    // убирает элемент из копии, по жребию
-    pool.erase(pool.begin() + cur_pos);
-
+    // advance(point, cur_pos);
+    for (auto i = step_size; i != 0; i--) {
+      if (point == pool.end()) { 
+        cout << "Making a loop..." << endl;
+        point = pool.begin(); 
+      }
+      point++;
+    }
+    *(first++) = move(*point);
+    point = pool.erase(point);
     if (pool.empty()) {
       break;
     }
-    cur_pos = (cur_pos + step_size - 1) % pool.size();
+    // cur_pos = (cur_pos + step_size - 1) % pool.size();
   }
 }
 
@@ -52,6 +59,40 @@ void TestIntVector() {
     ASSERT_EQUAL(numbers_copy, vector<int>({0, 3, 6, 9, 4, 8, 5, 2, 7, 1}));
   }
 }
+
+/*
+void TestExecTime() {
+  random_device rd;
+  mt19937 gen(rd());
+  uniform_int_distribution<> distrib(1, 100);
+  size_t seed = size_t(distrib(gen));
+  PRINT_VALUE(seed);
+  vector<int> big_vector(MAX_SIZE);
+  PRINT_VALUE(big_vector.size());
+  cout << "Filling vector..." << endl;
+  {
+  LOG_DURATION("iota")
+  iota(begin(big_vector), end(big_vector), 0);
+  }
+  {
+  LOG_DURATION("rand")
+  for (auto& element : big_vector) {
+    element = seed;
+  }
+  PRINT_VALUE(big_vector.at(3));
+  }
+  cout << "Jo list started..." << endl;
+  {
+  LOG_DURATION("jo_list")
+  MakeJosephusPermutationList(begin(big_vector), end(big_vector), seed);
+  }
+  cout << "Jo vector started..." << endl;
+  {
+  LOG_DURATION("jo_list")
+  MakeJosephusPermutationVector(begin(big_vector), end(big_vector), seed);
+  }
+}
+*/
 
 // Это специальный тип, который поможет вам убедиться, что ваша реализация
 // функции MakeJosephusPermutation не выполняет копирование объектов.
@@ -101,5 +142,6 @@ int main() {
   TestRunner tr;
   RUN_TEST(tr, TestIntVector);
   RUN_TEST(tr, TestAvoidsCopying);
+  // TestExecTime();
   return 0;
 }
