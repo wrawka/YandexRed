@@ -1,6 +1,6 @@
 #include "test_runner.h"
-// #include "logging.h"
-// #include "profile.h"
+#include "logging.h"
+#include "profile.h"
 
 #include <cstdint>
 #include <iterator>
@@ -23,16 +23,21 @@ void MakeJosephusPermutation(RandomIt first, RandomIt last, uint32_t step_size) 
   // size_t cur_pos = 0;
   auto point = pool.begin();
   while (!pool.empty()) {
-    // advance(point, cur_pos);
-    for (auto i = step_size; i != 0; i--) {
-      if (point == pool.end()) { 
-        cout << "Making a loop..." << endl;
-        point = pool.begin(); 
-      }
-      point++;
-    }
     *(first++) = move(*point);
+    // PRINT_VALUE(*point);
     point = pool.erase(point);
+    if (point == pool.end()) {
+      point = pool.begin();
+    }
+    // PrintRange(begin(pool), end(pool));
+    // advance(point, cur_pos);
+    for (auto i = step_size - 1; i != 0; i--) {
+      if (next(point) == pool.end()) {
+        point = pool.begin();
+      } else {
+        ++point;
+      }
+    }
     if (pool.empty()) {
       break;
     }
@@ -60,7 +65,7 @@ void TestIntVector() {
   }
 }
 
-/*
+
 void TestExecTime() {
   random_device rd;
   mt19937 gen(rd());
@@ -84,15 +89,10 @@ void TestExecTime() {
   cout << "Jo list started..." << endl;
   {
   LOG_DURATION("jo_list")
-  MakeJosephusPermutationList(begin(big_vector), end(big_vector), seed);
-  }
-  cout << "Jo vector started..." << endl;
-  {
-  LOG_DURATION("jo_list")
-  MakeJosephusPermutationVector(begin(big_vector), end(big_vector), seed);
+  MakeJosephusPermutation(begin(big_vector), end(big_vector), seed);
   }
 }
-*/
+
 
 // Это специальный тип, который поможет вам убедиться, что ваша реализация
 // функции MakeJosephusPermutation не выполняет копирование объектов.
@@ -142,6 +142,6 @@ int main() {
   TestRunner tr;
   RUN_TEST(tr, TestIntVector);
   RUN_TEST(tr, TestAvoidsCopying);
-  // TestExecTime();
+  TestExecTime();
   return 0;
 }
