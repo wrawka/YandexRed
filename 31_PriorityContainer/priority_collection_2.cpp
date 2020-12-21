@@ -10,23 +10,35 @@
 
 using namespace std;
 
-static const uint32_t MAX_CAP = 10e6; //
+// Контейнер должен обрабатывать 10^6 запросов не более чем за 1 секунду. 
+// Гарантируется, что суммарная длина диапазонов, 
+// с которыми вызывается вторая версия метода Add, также не превосходит 10^6.
+
+static const uint32_t MAX_CAP = 1e6; 
 
 
 template <typename T>
 class PriorityCollection {
 public:
-  using Id = /* тип, используемый для идентификаторов */
+  using Id = list<T>::iterator; /* тип, используемый для идентификаторов */
 
   // Добавить объект с нулевым приоритетом
   // с помощью перемещения и вернуть его идентификатор
-  Id Add(T object);
+  Id Add(T object) {
+    auto new_id = collection.insert(end(collection),move(object));
+    
+  }
 
   // Добавить все элементы диапазона [range_begin, range_end)
   // с помощью перемещения, записав выданные им идентификаторы
   // в диапазон [ids_begin, ...)
   template <typename ObjInputIt, typename IdOutputIt>
-  void Add(ObjInputIt range_begin, ObjInputIt range_end, IdOutputIt ids_begin);
+  void Add(ObjInputIt range_begin, ObjInputIt range_end, IdOutputIt ids_begin) {
+    collection.insert(
+      end(collection),
+      make_move_iterator(range_begin), make_move_iterator(range_end)
+      );
+  }
 
   // Определить, принадлежит ли идентификатор какому-либо
   // хранящемуся в контейнере объекту
@@ -45,7 +57,19 @@ public:
   pair<T, int> PopMax();
 
 private:
-
+struct PriorityID {
+  PriorityID(Id& i, int p = 0) { 
+    id = i; 
+    priority = p;
+  }
+  Id id;
+  int priority;
+  bool operator<(const PriorityID& other) const {
+    return priority < other.priority;
+  }
+};
+  set<PriorityID> priority_collection;
+  list<T> collection;
 };
 
 
