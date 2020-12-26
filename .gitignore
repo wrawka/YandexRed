@@ -34,3 +34,9 @@ YellowTest/yellowtest.code-workspace
 
 # Custom
 YellowTest/build/
+*.stackdump
+*Lists.txt
+*/build/
+*/.vscode/
+*.code-workspace
+26_StringGroup/test_func.cpp
