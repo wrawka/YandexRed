@@ -30,7 +30,13 @@
 *.exe
 *.out
 *.app
-YellowTest/yellowtest.code-workspace
 
 # Custom
-YellowTest/build/
+*/build/
+*/.vscode/
+*Lists.txt
+*.code-workspace
+.DS_Store
+25_Josephus/test_function_output.dSYM/Contents/Info.plist
+25_Josephus/test_function_output.dSYM/Contents/Resources/DWARF/test_function_output
+25_Josephus/test_function_output
