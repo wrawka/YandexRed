@@ -5,6 +5,7 @@
 #include <numeric>
 #include <vector>
 #include <iostream>
+#include <array>
 
 using namespace std;
 
@@ -19,24 +20,10 @@ void PrintRange(RandomIt first, RandomIt last) {
 
 template <typename RandomIt>
 void MakeJosephusPermutation(RandomIt first, RandomIt last, uint32_t step_size) {
-	RandomIt pr_r_b = first;
-	RandomIt pr_r_e = last;
-  vector<typename RandomIt::value_type> pool(first, last);
-  size_t cur_pos = 0;
-  while (!pool.empty()) {
-    cout << "Pool: \n";
-		PrintRange(pool.begin(), pool.end());
-    cout << "Range: \n";
-		PrintRange(pr_r_b, pr_r_e);
-    *(first++) = pool[cur_pos];
-    cout << "Erasing " << *(pool.begin() + cur_pos) << "...\n";
-    pool.erase(pool.begin() + cur_pos);
-    if (pool.empty()) {
-      break;
-    }
-    cur_pos = (cur_pos + step_size - 1) % pool.size(); // што ето
-		cout << "cur_pos=" << cur_pos << "\n";
-		cout << "====\n";
+  uint32_t size = last - first;
+  array<typename RandomIt::value_type, size> pool;
+  while(size--) {
+    
   }
 }
 
