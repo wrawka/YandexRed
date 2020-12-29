@@ -1,6 +1,4 @@
 #include "test_runner.h"
-#include "logging.h"
-#include "profile.h"
 
 #include <cstdint>
 #include <iterator>
@@ -11,26 +9,22 @@
 
 using namespace std;
 
-static const uint32_t MAX_SIZE = 1e5;
-
-// макс. размер диапазона (n) : 10^5
-// макс. размер шага      (m) : 10^2
-
 template <typename RandomIt>
 void MakeJosephusPermutation(RandomIt first, RandomIt last, uint32_t step_size) {
   list<typename RandomIt::value_type> pool
     (make_move_iterator(first), make_move_iterator(last));
-  // size_t cur_pos = 0;
+
+// первый элемент в обработке - всегда начало диапазона
   auto point = pool.begin();
+
   while (!pool.empty()) {
+    // обрабатываем элемент
     *(first++) = move(*point);
-    // PRINT_VALUE(*point);
     point = pool.erase(point);
-    if (point == pool.end()) {
-      point = pool.begin();
-    }
-    // PrintRange(begin(pool), end(pool));
-    // advance(point, cur_pos);
+    // проверка состояния после удаления
+    if (pool.empty()) { break; }
+    if (point == pool.end()) { point = pool.begin(); }
+    // переход на сл. элемент
     for (auto i = step_size - 1; i != 0; i--) {
       if (next(point) == pool.end()) {
         point = pool.begin();
@@ -38,10 +32,6 @@ void MakeJosephusPermutation(RandomIt first, RandomIt last, uint32_t step_size) 
         ++point;
       }
     }
-    if (pool.empty()) {
-      break;
-    }
-    // cur_pos = (cur_pos + step_size - 1) % pool.size();
   }
 }
 
@@ -64,36 +54,6 @@ void TestIntVector() {
     ASSERT_EQUAL(numbers_copy, vector<int>({0, 3, 6, 9, 4, 8, 5, 2, 7, 1}));
   }
 }
-
-
-void TestExecTime() {
-  random_device rd;
-  mt19937 gen(rd());
-  uniform_int_distribution<> distrib(1, 100);
-  size_t seed = size_t(distrib(gen));
-  PRINT_VALUE(seed);
-  vector<int> big_vector(MAX_SIZE);
-  PRINT_VALUE(big_vector.size());
-  cout << "Filling vector..." << endl;
-  {
-  LOG_DURATION("iota")
-  iota(begin(big_vector), end(big_vector), 0);
-  }
-  {
-  LOG_DURATION("rand")
-  for (auto& element : big_vector) {
-    element = seed;
-  }
-  PRINT_VALUE(big_vector.at(3));
-  }
-  cout << "Jo list started..." << endl;
-  {
-  LOG_DURATION("jo_list")
-  MakeJosephusPermutation(begin(big_vector), end(big_vector), seed);
-  }
-}
-
-
 // Это специальный тип, который поможет вам убедиться, что ваша реализация
 // функции MakeJosephusPermutation не выполняет копирование объектов.
 // Сейчас вы, возможно, не понимаете как он устроен, однако мы расскажем,
@@ -142,6 +102,5 @@ int main() {
   TestRunner tr;
   RUN_TEST(tr, TestIntVector);
   RUN_TEST(tr, TestAvoidsCopying);
-  TestExecTime();
   return 0;
 }
