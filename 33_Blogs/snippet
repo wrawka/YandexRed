@@ -1,0 +1,6 @@
+Stats ExploreKeyWordsSingleThread(const set<string>& key_words, istream& input);
+
+Stats ExploreKeyWords(const set<string>& key_words, istream& input) {
+  // key_words и input будут переданы по ссылке, а не скопированы
+  return async(ExploreKeyWordsSingleThread, ref(key_words), ref(input)).get();
+}
