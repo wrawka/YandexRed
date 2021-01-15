@@ -20,18 +20,20 @@ Stats ExploreLine(const set<string>& key_words, const string& line) {
   line_view.remove_prefix(
     min( line_view.find_first_not_of(" "), line_view.size() )
   ); // drop leading whitespaces if any
-  const size_t line_end = line_view.npos;
-  size_t pos = 0;
-  size_t space = line_view.find(' ', pos); // looking for the next whitespace
-  string word;
-  word = ( space == line_end 
-        ? line_view.substr(pos) 
-        : line_view.substr(pos, space - pos));
   Stats result;
-  if (key_words.contains(word)) {
-    result += (Stats){.word_frequences = {{word, 1}}};
+  while(true) {
+    size_t space = line_view.find(' '); // looking for the next whitespace
+    string word(line_view.substr(0, space));
+    if (key_words.contains(word)) {
+      result += (Stats){.word_frequences = {{word, 1}}};
+    }
+    if (space == line_view.npos) {
+      break;
+    } else {
+      line_view.remove_prefix(space + 1);
+    }
   }
-
+  return result;
 }
 
 Stats ExploreKeyWordsSingleThread(const set<string>& key_words, istream& input) {
@@ -44,6 +46,7 @@ Stats ExploreKeyWordsSingleThread(const set<string>& key_words, istream& input) 
 
 Stats ExploreKeyWords(const set<string>& key_words, istream& input) {
   // Реализуйте эту функцию
+  return ExploreKeyWordsSingleThread(key_words, input);
 }
 
 void TestBasic() {
