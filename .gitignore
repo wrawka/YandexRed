@@ -36,6 +36,7 @@
 */.vscode/
 *Lists.txt
 *.code-workspace
+*.stackdump
 .DS_Store
 25_Josephus/test_function_output.dSYM/Contents/Info.plist
 25_Josephus/test_function_output.dSYM/Contents/Resources/DWARF/test_function_output

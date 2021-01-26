@@ -1,0 +1,4 @@
+time limit exceeded: your implemenetation of ExploreKeyWords()
+works for at least 842 ms in average, but limit is 450 ms. 
+Launch params: 50000 keywords, 50000 lines, 20 words in a line 
+(Time used: 26.46/100.00, preprocess time used: 0/None, memory used: 25927680/536870912.)
