@@ -9,7 +9,6 @@
 #include <iterator>
 using namespace std;
 
-const int CHUNK_SIZE = 1'000;
 /*
 // Paginator
 template <typename Iterator>
@@ -95,6 +94,7 @@ Stats ExploreKeyWordsSingleThread(const set<string>& key_words, istream& input) 
 }
 
 Stats ExploreKeyWords(const set<string>& key_words, istream& input) {
+  const int CHUNK_SIZE = 1'000;
   //TODO: split the input stream, NOT the dictionary
   vector<future<Stats>> futures;
   Stats result;
